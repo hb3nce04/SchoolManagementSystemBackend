@@ -1,5 +1,10 @@
 # School Management System - Backend
 
+Open-source mini-project for school administration using the following technologies:
++ Express JS
++ TypeORM
++ JWT
+
 Steps to run this project:
 
 1. Run `npm i` command
