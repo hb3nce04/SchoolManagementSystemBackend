@@ -1,6 +1,18 @@
 import { DataSource } from "typeorm";
 
-import { User, Student, Bell, Class } from "../database/entities.js";
+import {
+  User,
+  Student,
+  Teacher,
+  Bell,
+  Class,
+  Classroom,
+  Lesson,
+  Enrollment,
+  Grades,
+  GradeTypes,
+  Absence,
+} from "../database/entities.js";
 
 var dataSource = new DataSource({
   type: "mysql",
@@ -10,7 +22,20 @@ var dataSource = new DataSource({
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   synchronize: true,
-  entities: [User, Student, Bell, Class],
+  //logging: ["query"],
+  entities: [
+    User,
+    Student,
+    Teacher,
+    Bell,
+    Class,
+    Classroom,
+    Lesson,
+    Enrollment,
+    Grades,
+    GradeTypes,
+    Absence,
+  ],
 });
 
 const userRepository = dataSource.getRepository("User");

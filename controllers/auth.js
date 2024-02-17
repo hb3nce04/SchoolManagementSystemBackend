@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { userRepository, studentRepository } from "../libs/database/config.js";
+import { userRepository } from "../libs/database/config.js";
 
 const authenticateUser = async (req, res, next) => {
   const { username, password } = req.body;
 
+  // megnézzük Student után utánna tudunk-e így nézni így, ha inverseSide-ra állítjuk be az Entityt: https://typeorm.io/#inverse-side-of-the-relationship
   const foundUser = await userRepository.findOne({
     select: { id: true, username: true, password: true },
     where: { username: username },
@@ -22,11 +23,9 @@ const authenticateUser = async (req, res, next) => {
       role: foundUser.role,
     };
 
-    const accessToken = jwt.sign(
-      PAYLOAD,
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1m" } // 15m
-    );
+    const accessToken = jwt.sign(PAYLOAD, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "15m",
+    });
 
     const refreshToken = jwt.sign(PAYLOAD, process.env.REFRESH_TOKEN_SECRET, {
       expiresIn: "1d",
@@ -38,8 +37,10 @@ const authenticateUser = async (req, res, next) => {
     );
 
     res.cookie("jwt", refreshToken, {
+      secret: process.env.COOKIE_SECRET,
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV !== "development",
     });
     res.status(200).json({
       message: "Successfully logged-in",
@@ -50,7 +51,6 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// it refreshes the short-term access token
 const handleRefreshToken = async (req, res, next) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) {
@@ -74,7 +74,7 @@ const handleRefreshToken = async (req, res, next) => {
       foundUser.username !== decoded.username ||
       foundUser.role !== decoded.role
     ) {
-      return res.sendStatus(403);
+      res.sendStatus(403);
     } else {
       const PAYLOAD = {
         userId: foundUser.id,
@@ -83,7 +83,7 @@ const handleRefreshToken = async (req, res, next) => {
       };
 
       const accessToken = jwt.sign(PAYLOAD, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1m",
+        expiresIn: "15m",
       });
 
       res.status(200).json({
@@ -107,13 +107,13 @@ const handleLogout = async (req, res, next) => {
   });
 
   if (!foundUser) {
-    res.clearCookie("jwt", { httpOnly: true });
+    res.clearCookie("jwt");
     return res.sendStatus(204);
   }
 
   await userRepository.update({ id: foundUser.id }, { refresh_token: "NULL" });
 
-  res.clearCookie("jwt", { httpOnly: true }); // secure true on production
+  res.clearCookie("jwt");
   res.sendStatus(204);
 };
 
