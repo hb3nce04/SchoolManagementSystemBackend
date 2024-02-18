@@ -7,7 +7,7 @@ const authenticateUser = async (req, res, next) => {
 
   // megnézzük Student után utánna tudunk-e így nézni így, ha inverseSide-ra állítjuk be az Entityt: https://typeorm.io/#inverse-side-of-the-relationship
   const foundUser = await userRepository.findOne({
-    select: { id: true, username: true, password: true },
+    select: { id: true, username: true, password: true, role: true },
     where: { username: username },
   });
 
@@ -59,7 +59,7 @@ const handleRefreshToken = async (req, res, next) => {
   const refreshToken = cookies.jwt;
 
   const foundUser = await userRepository.findOne({
-    select: { id: true, username: true, password: true },
+    select: { id: true, username: true, role: true },
     where: { refresh_token: refreshToken },
   });
 

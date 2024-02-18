@@ -1,8 +1,5 @@
 import typeorm from "typeorm";
 
-// ALAPÉRTELMEZETT ÉRTÉK SEHOL SINCS BEÁLLÍTVA
-// CASCADEKET ÁTGONDOL
-// TÁBLA ÉS ENTITY NEVEKET ÁTNÉZ ÉS ÁTGONDOL
 const User = new typeorm.EntitySchema({
   name: "User",
   tableName: "users",
@@ -27,11 +24,11 @@ const User = new typeorm.EntitySchema({
     phone_number: {
       type: "varchar",
       length: 12,
+      nullable: true,
     },
     role: {
       type: "varchar",
       length: 1,
-      nullable: false,
       default: 0,
     },
     refresh_token: {
@@ -56,7 +53,7 @@ const Student = new typeorm.EntitySchema({
   columns: {
     id: {
       primary: true,
-      width: 4,
+      width: 5,
       type: "int",
       generated: true,
     },
@@ -82,6 +79,7 @@ const Student = new typeorm.EntitySchema({
     bank_account_number: {
       type: "varchar",
       length: 32,
+      nullable: true,
     },
   },
   relations: {
@@ -89,7 +87,7 @@ const Student = new typeorm.EntitySchema({
       target: "User",
       type: "one-to-one",
       joinColumn: { name: "user_id" },
-      onDelete: "CASCADE",
+      onDelete: "RESTRICT",
       onUpdate: "CASCADE",
     },
     Class: {
@@ -108,13 +106,14 @@ const Teacher = new typeorm.EntitySchema({
   columns: {
     id: {
       primary: true,
-      width: 3,
+      width: 5,
       type: "int",
       generated: true,
     },
     prefix_title: {
       type: "varchar",
       length: 16,
+      nullable: true,
     },
     first_name: {
       type: "varchar",
@@ -130,7 +129,7 @@ const Teacher = new typeorm.EntitySchema({
       target: "User",
       type: "one-to-one",
       joinColumn: { name: "user_id" },
-      onDelete: "CASCADE",
+      onDelete: "RESTRICT",
       onUpdate: "CASCADE",
     },
   },
@@ -142,17 +141,15 @@ const Bell = new typeorm.EntitySchema({
   columns: {
     id: {
       primary: true,
-      width: 1,
+      width: 5,
       type: "int",
       generated: true,
     },
     start_time: {
       type: "time",
-      nullable: false,
     },
     end_time: {
       type: "time",
-      nullable: false,
     },
   },
 });
@@ -163,7 +160,7 @@ const Class = new typeorm.EntitySchema({
   columns: {
     id: {
       primary: true,
-      width: 2,
+      width: 5,
       type: "int",
       generated: true,
     },
@@ -182,6 +179,7 @@ const Class = new typeorm.EntitySchema({
     specialization: {
       type: "varchar",
       length: 32,
+      nullable: true,
     },
   },
   relations: {
@@ -189,7 +187,7 @@ const Class = new typeorm.EntitySchema({
       target: "Teacher",
       type: "one-to-one",
       joinColumn: { name: "head_teacher_id" },
-      onDelete: "SET NULL",
+      onDelete: "RESTRICT",
       onUpdate: "CASCADE",
     },
   },
@@ -201,14 +199,13 @@ const Classroom = new typeorm.EntitySchema({
   columns: {
     id: {
       primary: true,
-      width: 2,
+      width: 5,
       type: "int",
       generated: true,
     },
     name: {
       type: "varchar",
       length: 16,
-      nullable: false,
     },
   },
 });
@@ -219,14 +216,13 @@ const Lesson = new typeorm.EntitySchema({
   columns: {
     id: {
       primary: true,
-      width: 4,
+      width: 5,
       type: "int",
       generated: true,
     },
     name: {
       type: "varchar",
       length: 16,
-      nullable: false,
     },
     week_day: {
       type: "int",
@@ -245,14 +241,14 @@ const Lesson = new typeorm.EntitySchema({
       target: "Bell",
       type: "many-to-one",
       joinColumn: { name: "schedule_id" },
-      onDelete: "SET NULL",
+      onDelete: "RESTRICT",
       onUpdate: "CASCADE",
     },
     Class: {
       target: "Class",
       type: "many-to-one",
       joinColumn: { name: "class_id" },
-      onDelete: "SET NULL",
+      onDelete: "RESTRICT",
       onUpdate: "CASCADE",
     },
     Teacher: {
@@ -281,17 +277,21 @@ const Enrollment = new typeorm.EntitySchema({
       target: "Student",
       type: "many-to-one",
       joinColumn: { name: "student_id" },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
     Lesson: {
       target: "Lesson",
       type: "many-to-one",
       joinColumn: { name: "lesson_id" },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
   },
 });
 
-const Grades = new typeorm.EntitySchema({
-  name: "Grades",
+const Grade = new typeorm.EntitySchema({
+  name: "Grade",
   tableName: "grades",
   columns: {
     id: {
@@ -302,16 +302,15 @@ const Grades = new typeorm.EntitySchema({
     },
     topic: {
       type: "varchar",
-      length: 15,
+      length: 32,
     },
     grade: {
-      type: "int",
-      width: 1,
+      type: "varchar",
+      length: 1,
     },
     extra_weight: {
-      // boolean
-      type: "tinyint",
-      default: 0,
+      type: "boolean",
+      default: false,
     },
     created_at: {
       type: "datetime",
@@ -326,8 +325,8 @@ const Grades = new typeorm.EntitySchema({
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     },
-    GradeTypes: {
-      target: "GradeTypes",
+    GradeType: {
+      target: "GradeType",
       type: "many-to-one",
       joinColumn: { name: "grade_type_id" },
       onDelete: "RESTRICT",
@@ -336,8 +335,8 @@ const Grades = new typeorm.EntitySchema({
   },
 });
 
-const GradeTypes = new typeorm.EntitySchema({
-  name: "GradeTypes",
+const GradeType = new typeorm.EntitySchema({
+  name: "GradeType",
   tableName: "grade_types",
   columns: {
     id: {
@@ -363,7 +362,102 @@ const Absence = new typeorm.EntitySchema({
       type: "int",
       generated: true,
     },
+    type: {
+      type: "varchar",
+      length: 64,
+    },
+    description: {
+      type: "text",
+      nullable: true,
+    },
+    verified: {
+      type: "boolean",
+      default: false,
+    },
     absence_at: {
+      type: "date",
+    },
+    created_at: {
+      type: "datetime",
+      default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    Enrollment: {
+      target: "Enrollment",
+      type: "many-to-one",
+      joinColumn: { name: "enrollment_id" },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+  },
+});
+
+const Message = new typeorm.EntitySchema({
+  name: "Message",
+  tableName: "messages",
+  columns: {
+    id: {
+      primary: true,
+      width: 5,
+      type: "int",
+      generated: true,
+    },
+    title: {
+      type: "varchar",
+      length: 16,
+    },
+    body: {
+      type: "text",
+    },
+    description: {
+      type: "text",
+      nullable: true,
+    },
+    important: {
+      type: "boolean",
+      default: false,
+    },
+    until_date: {
+      type: "date",
+    },
+    created_at: {
+      type: "datetime",
+      default: () => "CURRENT_TIMESTAMP",
+    },
+  },
+  relations: {
+    Class: {
+      target: "Class",
+      type: "many-to-one",
+      joinColumn: { name: "class_id" },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+    Teacher: {
+      target: "Teacher",
+      type: "many-to-one",
+      joinColumn: { name: "teacher_id" },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+  },
+});
+
+const Homework = new typeorm.EntitySchema({
+  name: "Homework",
+  tableName: "homeworks",
+  columns: {
+    id: {
+      primary: true,
+      width: 5,
+      type: "int",
+      generated: true,
+    },
+    body: {
+      type: "text",
+    },
+    until_date: {
       type: "date",
     },
     created_at: {
@@ -391,7 +485,9 @@ export {
   Classroom,
   Lesson,
   Enrollment,
-  Grades,
-  GradeTypes,
+  Grade,
+  GradeType,
   Absence,
+  Message,
+  Homework,
 };

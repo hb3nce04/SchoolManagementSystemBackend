@@ -9,9 +9,11 @@ import {
   Classroom,
   Lesson,
   Enrollment,
-  Grades,
-  GradeTypes,
+  Grade,
+  GradeType,
   Absence,
+  Message,
+  Homework
 } from "../database/entities.js";
 
 var dataSource = new DataSource({
@@ -32,13 +34,41 @@ var dataSource = new DataSource({
     Classroom,
     Lesson,
     Enrollment,
-    Grades,
-    GradeTypes,
+    Grade,
+    GradeType,
     Absence,
+    Message,
+    Homework
   ],
 });
 
 const userRepository = dataSource.getRepository("User");
 const studentRepository = dataSource.getRepository("Student");
+const teacherRepository = dataSource.getRepository("Teacher");
+const bellRepository = dataSource.getRepository("Bell");
+const classRepository = dataSource.getRepository("Class");
+const classroomRepository = dataSource.getRepository("Classroom");
+const lessonRepository = dataSource.getRepository("Lesson");
+const enrollmentRepository = dataSource.getRepository("Enrollment");
+const gradeRepository = dataSource.getRepository("Grade");
+const gradeTypeRepository = dataSource.getRepository("GradeType");
+const absenceRepository = dataSource.getRepository("Absence");
+const messageRepository = dataSource.getRepository("Message");
+const homeworkRepository = dataSource.getRepository("Homework");
 
-export { dataSource as database, userRepository, studentRepository };
+export {
+  dataSource as database,
+  userRepository,
+  studentRepository,
+  teacherRepository,
+  bellRepository,
+  classRepository,
+  classroomRepository,
+  lessonRepository,
+  enrollmentRepository,
+  gradeRepository,
+  gradeTypeRepository,
+  absenceRepository,
+  messageRepository,
+  homeworkRepository
+};
